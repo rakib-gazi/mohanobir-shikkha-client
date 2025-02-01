@@ -193,7 +193,7 @@ const Application = () => {
         <div className="flex flex-col justify-center items-center ">
           <div className="w-full max-w-xl bg-white rounded-3xl">
             <div className="bg-[url('/bg-form.png')] bg-cover bg-center bg-no-repeat rounded-t-3xl">
-              <h1 className="text-white  text-3xl text-center font-lipi font-black py-32">
+              <h1 className="text-white  text-3xl text-center font-lipi font-black py-20 md:py-32">
                 
               </h1>
             </div>

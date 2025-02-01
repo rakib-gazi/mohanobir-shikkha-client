@@ -42,7 +42,7 @@ const HomeHero = () => {
   return (
     <div className="w-11/12 mx-auto rounded-b-3xl bg-white pt-16 mb-12">
       <div className="bg-[url('/bg.png')] bg-cover bg-center bg-no-repeat">
-        <div className="py-52 flex items-center justify-center">
+        <div className="py-16 md:py-36 lg:py-52 flex items-center justify-center">
           <h1 className="text-center text-3xl text-white inline-block font-siliguri font-black px-6 py-2 rounded-xl">
            
           </h1>

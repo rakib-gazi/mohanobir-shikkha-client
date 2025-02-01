@@ -43,9 +43,9 @@ const IdRecovery = () => {
   };
 
   return (
-    <div className="w-11/12 mx-auto rounded-b-3xl bg-white  mb-12  pb-6">
-      <div className="bg-[url('/image.png')] bg-cover bg-center bg-no-repeat">
-        <div className="py-52 flex items-center justify-center"></div>
+    <div className="w-11/12 mx-auto rounded-b-3xl bg-white  mb-12  pb-6 pt-16 md:py-0">
+      <div className="bg-[url('/image.png')] bg-cover bg-center bg-no-repeat ">
+        <div className="py-20 md:py-36 lg:py-52 flex items-center justify-center"></div>
       </div>
       <div className="px-4">
         <h1 className="text-center text-3xl text-nav font-siliguri font-black pt-12">
