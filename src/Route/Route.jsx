@@ -19,6 +19,7 @@ import PrivateRoute from "./PrivateRoute";
 import ErrorPage from "../Pages/ErrorPage";
 import PaymentPage from "../Pages/PaymentPage";
 import Application from "../Pages/Application";
+import ApplicantProfile from "../Pages/ApplicantProfile";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: "/admin",
         element: <EmRequestAsset></EmRequestAsset>,
+      },
+      {
+        path: "profile/:id",
+        element: <ApplicantProfile></ApplicantProfile>,
       },
       
     ],

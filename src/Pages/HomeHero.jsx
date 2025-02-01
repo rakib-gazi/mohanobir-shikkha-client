@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Label, TextInput } from "flowbite-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAxiosPublic from "../Hooks/useAxiosPublic";
 
 const HomeHero = () => {
   const [error, setError] = useState("");
   const axiosPublic = useAxiosPublic();
-
+  const navigate = useNavigate();
   const handleApplicantLogin = async (e) => {
     e.preventDefault();
     const form = new FormData(e.target);
@@ -25,7 +25,12 @@ const HomeHero = () => {
        
         if(res.data.user ==false){
           setError("আপনি ভূল আইডি নম্বর দিয়েছেন");
+          return;
         }
+        // If the response is successful, redirect to the profile page
+        navigate(`/profile/${loginID}`);
+        document.getElementById("login").close();
+
       })
       
     } catch (err) {
@@ -34,7 +39,7 @@ const HomeHero = () => {
       setError("সিস্টেমে কিছু সমস্যা ঘটেছে, আবার চেষ্টা করুন");
     }
     
-    // document.getElementById("login").close();
+    
   }
   
   return (
