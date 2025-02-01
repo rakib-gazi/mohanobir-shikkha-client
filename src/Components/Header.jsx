@@ -1,12 +1,12 @@
 import { Link, NavLink, useNavigate, useParams } from "react-router-dom";
-import logo from "../assets/logo.png";
+
 import { Navbar, Avatar } from "flowbite-react";
 import useAuth from "../Hooks/useAuth";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPublic from "../Hooks/useAxiosPublic";
-import defaultAvatar from "../assets/nav-avatar.jpg";
+
 const Header = () => {
   const { user, setUser, LogOutUser } = useAuth();
   const navigate = useNavigate();
