@@ -1,40 +1,14 @@
-import { Link, NavLink, useNavigate, useParams } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
-import { Navbar, Avatar } from "flowbite-react";
-import useAuth from "../Hooks/useAuth";
+import { Navbar } from "flowbite-react";
 import Swal from "sweetalert2";
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import useAxiosPublic from "../Hooks/useAxiosPublic";
 
 const Header = () => {
-  const { user, setUser, LogOutUser } = useAuth();
   const navigate = useNavigate();
-  const { id } = useParams();
-  const axiosPublic = useAxiosPublic();
-  const [isSticky, setIsSticky] = useState(false);
-  const userEmail = user?.email;
-  const { data: registeredUser = [] } = useQuery({
-    queryKey: ["registeredUser"],
-    queryFn: async () => {
-      if (!userEmail) return null;
-      const response = await axiosPublic.get(`/users/${userEmail}`);
-      return response.data;
-    },
-    enabled: !!userEmail,
-  });
-  const regEmployee = registeredUser?.role === "employee";
-  const regUser = registeredUser?.role === "user";
-  const regHr = registeredUser?.role === "hr";
-  const isHrPaymentPending = registeredUser.paymentStatus === "pending";
-  const isHrPaymentPaid = registeredUser.paymentStatus === "paid";
-  const pendingHr = regHr && isHrPaymentPending;
-  const paidHr = regHr && isHrPaymentPaid;
 
   const handleLogOut = () => {
     LogOutUser()
       .then(() => {
-        setUser(null);
         navigate("/");
         Swal.fire({
           position: "center",

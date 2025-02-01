@@ -7,7 +7,6 @@ const ApplicantProfile = () => {
   const { id } = useParams();
   const axiosPublic = useAxiosPublic();
   const [error, setError] = useState("");
-  console.log(id);
   const { data: user = {}, isLoading } = useQuery({
     queryKey: ["user", id],
     queryFn: async () => {
@@ -23,7 +22,6 @@ const ApplicantProfile = () => {
   }, [user]);
   if (isLoading)
     return <p className="text-center font-bold text-red-600">লোড হচ্ছে...</p>;
-  console.log(user.user);
   return (
     <div className="w-11/12 mx-auto rounded-b-3xl bg-white pt-32 mb-12">
       {error && (
@@ -69,7 +67,7 @@ const ApplicantProfile = () => {
               ) : (
                 <p className="font-semibold text-nav">
                   অভিনন্দন ! মহানবীর শিক্ষা অনুষ্ঠানে অডিশনের জন্য তোমার
-                  রেজিট্রেশনের আবেদন সম্পন্ন হয়েছে। পেমেন্টে কনফার্মেশনর জন্য
+                  রেজিট্রেশনের আবেদন সম্পন্ন হয়েছে। পেমেন্টে কনফার্মেশনের জন্য
                   অপেক্ষা কর । তোমার পেমেন্টে কনফার্ম হয়েছে কি না তা শীঘ্রই
                   জানিয়ে দেয়া হবে।
                 </p>

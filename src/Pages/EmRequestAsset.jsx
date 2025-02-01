@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { TextInput, Select, Label, Button } from "flowbite-react";
 import { IoSearch } from "react-icons/io5";
-import useAuth from "../Hooks/useAuth";
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { Helmet } from "react-helmet";
@@ -9,18 +8,14 @@ import useAxiosPublic from "../Hooks/useAxiosPublic";
 import { FaEye } from "react-icons/fa6";
 import { TbCoinTakaFilled } from "react-icons/tb";
 const EmRequestAsset = () => {
-  const { user } = useAuth();
+ 
   const axiosPublic = useAxiosPublic();
   const [search, setSearch] = useState("");
   const [selectedAssetType, setSelectedAssetType] = useState("");
   const [availability, setAvailability] = useState("");
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-  const listedDate = currentDate;
-  const userEmail = user?.email;
+
+  
+  
   const handleAssetTypeChange = (e) => {
     const value = e.target.value;
     if (value !== "") {
@@ -76,18 +71,7 @@ const EmRequestAsset = () => {
       });
     }
   };
-  const { data: requestedAssets = [] } = useQuery({
-    queryKey: ["requestedAssets"],
-    queryFn: async () => {
-      const response = await axiosSecure.get(
-        `assets-request?email=${userEmail}`
-      );
-      return response.data;
-    },
-    enabled: !!userEmail,
-  });
-  const isAssetRequested = (assetId) =>
-    requestedAssets.some((request) => request.assetId === assetId);
+  
   return (
     <>
       <Helmet>

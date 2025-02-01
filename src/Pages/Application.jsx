@@ -49,7 +49,7 @@ const Application = () => {
       .map((digit) => bengaliDigits[parseInt(digit)])
       .join("");
   };
-  const eventFee = 100;
+  const eventFee = 200;
   const totalFee = selectedEvents.length * eventFee;
   const totalFeeInBengali = numberToBengali(totalFee);
 
@@ -161,7 +161,6 @@ const Application = () => {
     };
 
     axiosPublic.post("users", applicant).then((res) => {
-      console.log(res.data.user);
       if (res.data.user._id) {
         Swal.fire({
           position: "center",
