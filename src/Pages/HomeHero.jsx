@@ -34,8 +34,6 @@ const HomeHero = () => {
       })
       
     } catch (err) {
-      // Handle error if API request fails
-      console.error("Error fetching profile:", err);
       setError("সিস্টেমে কিছু সমস্যা ঘটেছে, আবার চেষ্টা করুন");
     }
     

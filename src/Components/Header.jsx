@@ -1,34 +1,10 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { Navbar } from "flowbite-react";
-import Swal from "sweetalert2";
 
 const Header = () => {
-  const navigate = useNavigate();
 
-  const handleLogOut = () => {
-    LogOutUser()
-      .then(() => {
-        navigate("/");
-        Swal.fire({
-          position: "center",
-          icon: "success",
-          title: "Successfully Logged Out",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        Swal.fire({
-          position: "center",
-          icon: "error",
-          title: { errorCode },
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      });
-  };
+  
 
   const links = [
     <NavLink
@@ -52,6 +28,17 @@ const Header = () => {
       }
     >
       রেজিট্রেশন ফরম
+    </NavLink>,
+    <NavLink
+      to="/recovery"
+      key="recovery"
+      className={({ isActive }) =>
+        `px-3 py-1 rounded-xl font-siliguri text-base lg:text-xl hover:bg-blue-600 hover:text-white  ${
+          isActive ? "bg-btn text-black" : "text-white"
+        }`
+      }
+    >
+      আইডি রিকভারী
     </NavLink>,
     
   ];
