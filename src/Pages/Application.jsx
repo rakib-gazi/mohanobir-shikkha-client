@@ -169,7 +169,7 @@ const Application = () => {
           title: `
             <span class="text-2xl text-blue-600 font-bold">অভিনন্দন!</span>
             <span class="text-lg text-nav">আপনার রেজিট্রেশন সম্পন্ন হয়েছে।</span>
-            <span class="text-xl text-red-600 font-bold">আপনার আইডি: ${res.data.user.applicantId} ।</span>
+            <span class="text-xl text-red-600 font-bold">আপনার আইডি: ${res.data.user.applicantId} </span>
           `,
           
           customClass: {

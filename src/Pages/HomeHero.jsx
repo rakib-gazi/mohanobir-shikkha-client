@@ -1,6 +1,42 @@
+import { useQuery } from "@tanstack/react-query";
+import { Label, TextInput } from "flowbite-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import useAxiosPublic from "../Hooks/useAxiosPublic";
 
 const HomeHero = () => {
+  const [error, setError] = useState("");
+  const axiosPublic = useAxiosPublic();
+
+  const handleApplicantLogin = async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const loginID = form.get("loginID").trim();
+    if (!/^\d{3}$/.test(loginID)) {
+      setError("আইডি অবশ্যই ইংরেজিতে সংখ্যায় লিখতে হবে  এবং ৩ সংখ্যার হতে হবে ");
+      return;
+    }
+    setError("");
+    try {
+     
+      // Make the Axios request and wait for the response
+      await axiosPublic.get(`profile/${loginID}`)
+      .then(res =>{
+       
+        if(res.data.user ==false){
+          setError("আপনি ভূল আইডি নম্বর দিয়েছেন");
+        }
+      })
+      
+    } catch (err) {
+      // Handle error if API request fails
+      console.error("Error fetching profile:", err);
+      setError("সিস্টেমে কিছু সমস্যা ঘটেছে, আবার চেষ্টা করুন");
+    }
+    
+    // document.getElementById("login").close();
+  }
+  
   return (
     <div className="w-11/12 mx-auto rounded-b-3xl bg-white pt-32 mb-12">
       <h1 className="text-center text-3xl text-nav font-siliguri font-black">
@@ -28,23 +64,50 @@ const HomeHero = () => {
           </h1>
         </Link>
       </div>
-      <dialog id="login"  className="modal">
-            <div className="modal-box">
-              <h3 className="font-bold text-lg text-center pb-6 text-black">
-                বিস্তারিত তথ্য
-              </h3>
-              
-              <div className="flex justify-center items-center gap-2">
-                <button
-                  type="button"
-                  className="bg-red-600 text-white px-4 py-2 rounded-md"
-                  onClick={() => document.getElementById("login").close()}
-                >
-                  বাতিল
-                </button>
+      <dialog id="login" className="modal ">
+        <div className="modal-box bg-white">
+          <h3 className="font-bold text-lg text-center pb-6 text-black">
+          প্রোফাইল লগ ইন
+          </h3>
+          <form onSubmit={(e) => handleApplicantLogin(e)}>
+            <div className="mb-2">
+              <div>
+                <div className="mb-2 block">
+                  <Label
+                    htmlFor="loginID"
+                    className="text-xl font-siliguri font-semibold"
+                  >
+                    <span className="">আইডি নম্বর</span>
+                    <span className="text-red-600 ps-2 text-sm">
+                      (ইংরেজিতে)
+                    </span>
+                  </Label>
+                </div>
+                <TextInput
+                  id="loginID"
+                  type="text"
+                  name="loginID"
+                  placeholder=" এভাবে লিখুন: 057"
+                  shadow
+                />
               </div>
+              {error && <p className="text-red-600 mt-2 text-sm">{error}</p>}
             </div>
-          </dialog>
+            <div className="flex justify-between items-center gap-2">
+              <button className="bg-nav text-white px-4 py-2 rounded-md">
+               লগ ইন
+              </button>
+              <button
+                className="bg-red-600 text-white px-4 py-2 rounded-md"
+                onClick={() => document.getElementById(`login`).close()}
+              >
+                বাতিল
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </dialog>
     </div>
   );
 };
