@@ -21,6 +21,7 @@ const Application = () => {
   const [statementChecked, setStatementChecked] = useState(false);
   const [bkashError, setBkashError] = useState("");
   const [transactionNumberError, setTransactionNumberError] = useState("");
+  const [loading, setLoading] = useState(false);
   const eventsList = [
     "কুরআন তিলাওয়াত",
     "নাত/হামদ/গজল",
@@ -55,6 +56,7 @@ const Application = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+    setLoading(true);
     let isError = false;
     const form = new FormData(e.target);
     const fullName = form.get("fullName");
@@ -141,6 +143,7 @@ const Application = () => {
     }
 
     if (isError) {
+      setLoading(false);
       return;
     }
     const applicant = {
@@ -162,6 +165,7 @@ const Application = () => {
 
     axiosPublic.post("users", applicant).then((res) => {
       if (res.data.user._id) {
+        setLoading(false);
         Swal.fire({
           position: "center",
           icon: "success",
@@ -170,13 +174,14 @@ const Application = () => {
             <span class="text-lg text-nav">আপনার রেজিট্রেশন সম্পন্ন হয়েছে।</span>
             <span class="text-xl text-red-600 font-bold">আপনার আইডি: ${res.data.user.applicantId} </span>
           `,
-          
+
           customClass: {
             title: "text-xl text-nav",
           },
         });
       }
     });
+    setLoading(false);
     e.target.reset();
   };
   return (
@@ -186,7 +191,13 @@ const Application = () => {
       </Helmet>
       <div className="pb-12 pt-32 px-4 xl:px-0 ">
         <div className="flex flex-col justify-center items-center ">
-          <div className="w-full max-w-xl bg-white p-8 rounded-3xl">
+          <div className="w-full max-w-xl bg-white rounded-3xl">
+            <div className="bg-[url('/bg-form.png')] bg-cover bg-center bg-no-repeat rounded-t-3xl">
+              <h1 className="text-white  text-3xl text-center font-lipi font-black py-32">
+                
+              </h1>
+            </div>
+            <div className="p-8">
             <div className="">
               <h1 className="text-black  text-3xl text-center font-lipi font-black">
                 রেজিস্ট্রেশন ফরম
@@ -479,12 +490,17 @@ const Application = () => {
               </div>
               <Button
                 type="submit"
-                className="bg-nav"
-                disabled={!statementChecked}
+                className="bg-nav font-bold text-white px-4 py-2 rounded-md flex items-center justify-center"
+                disabled={!statementChecked || loading}
               >
-                আবেদন করুন
+                {loading ? (
+                  <span className="loader border-white border-2 border-t-transparent rounded-full w-12 h-12 animate-spin"></span>
+                ) : (
+                  "আবেদন করুন"
+                )}
               </Button>
             </form>
+            </div>
           </div>
         </div>
       </div>

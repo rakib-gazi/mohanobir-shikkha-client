@@ -3,9 +3,9 @@ import { Label, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAxiosPublic from "../Hooks/useAxiosPublic";
-
 const HomeHero = () => {
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
   const handleApplicantLogin = async (e) => {
@@ -13,38 +13,42 @@ const HomeHero = () => {
     const form = new FormData(e.target);
     const loginID = form.get("loginID").trim();
     if (!/^\d{3}$/.test(loginID)) {
-      setError("আইডি অবশ্যই ইংরেজিতে সংখ্যায় লিখতে হবে  এবং ৩ সংখ্যার হতে হবে ");
+      setError(
+        "আইডি অবশ্যই ইংরেজিতে সংখ্যায় লিখতে হবে  এবং ৩ সংখ্যার হতে হবে "
+      );
       return;
     }
     setError("");
+    setLoading(true);
     try {
-     
       // Make the Axios request and wait for the response
-      await axiosPublic.get(`profile/${loginID}`)
-      .then(res =>{
-       
-        if(res.data.user ==false){
+      await axiosPublic.get(`profile/${loginID}`).then((res) => {
+        setLoading(false);
+        if (res.data.user == false) {
           setError("আপনি ভূল আইডি নম্বর দিয়েছেন");
           return;
         }
+
         // If the response is successful, redirect to the profile page
         navigate(`/profile/${loginID}`);
         document.getElementById("login").close();
-
-      })
-      
+      });
     } catch (err) {
       setError("সিস্টেমে কিছু সমস্যা ঘটেছে, আবার চেষ্টা করুন");
     }
-    
-    
-  }
-  
+    setLoading(false);
+  };
+
   return (
-    <div className="w-11/12 mx-auto rounded-b-3xl bg-white pt-32 mb-12">
-      <h1 className="text-center text-3xl text-nav font-siliguri font-black">
-        মহানবীর শিক্ষা - ২০২৫ ইং{" "}
-      </h1>
+    <div className="w-11/12 mx-auto rounded-b-3xl bg-white pt-16 mb-12">
+      <div className="bg-[url('/bg.png')] bg-cover bg-center bg-no-repeat">
+        <div className="py-52 flex items-center justify-center">
+          <h1 className="text-center text-3xl text-white inline-block font-siliguri font-black px-6 py-2 rounded-xl">
+           
+          </h1>
+        </div>
+      </div>
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 py-12">
         <Link to="/form" className="bg-nav hover:bg-blue-600 p-4 rounded-3xl">
           <h1 className="text-center font-lipi text-white font-extrabold text-xl py-4">
@@ -52,16 +56,17 @@ const HomeHero = () => {
           </h1>
         </Link>
         <button
-          onClick={() =>
-            document.getElementById(`login`).showModal()
-          }
+          onClick={() => document.getElementById(`login`).showModal()}
           className="bg-nav hover:bg-blue-600 p-4 rounded-3xl"
         >
           <h1 className="text-center font-lipi text-white font-extrabold text-xl py-4">
             প্রোফাইল লগ ইন
           </h1>
         </button>
-        <Link className="bg-nav hover:bg-blue-600 p-4 rounded-3xl">
+        <Link
+          to={`/recovery`}
+          className="bg-nav hover:bg-blue-600 p-4 rounded-3xl"
+        >
           <h1 className="text-center font-lipi text-white font-extrabold text-xl py-4">
             আইডি রিকভারী
           </h1>
@@ -70,7 +75,7 @@ const HomeHero = () => {
       <dialog id="login" className="modal ">
         <div className="modal-box bg-white">
           <h3 className="font-bold text-lg text-center pb-6 text-black">
-          প্রোফাইল লগ ইন
+            প্রোফাইল লগ ইন
           </h3>
           <form onSubmit={(e) => handleApplicantLogin(e)}>
             <div className="mb-2">
@@ -97,18 +102,25 @@ const HomeHero = () => {
               {error && <p className="text-red-600 mt-2 text-sm">{error}</p>}
             </div>
             <div className="flex justify-between items-center gap-2">
-              <button className="bg-nav text-white px-4 py-2 rounded-md">
-               লগ ইন
+              <button
+                className="bg-nav text-white px-4 py-2 rounded-md flex items-center justify-center"
+                disabled={loading} // Disable button when loading
+              >
+                {loading ? (
+                  <span className="loader border-white border-2 border-t-transparent rounded-full w-8 h-8 animate-spin"></span>
+                ) : (
+                  "লগ ইন"
+                )}
               </button>
               <button
                 className="bg-red-600 text-white px-4 py-2 rounded-md"
                 onClick={() => document.getElementById(`login`).close()}
+                disabled={loading} // Disable cancel button when loading
               >
                 বাতিল
               </button>
             </div>
           </form>
-
         </div>
       </dialog>
     </div>

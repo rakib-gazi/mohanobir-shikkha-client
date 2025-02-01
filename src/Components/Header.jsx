@@ -50,7 +50,7 @@ const Header = () => {
           <Link to="/">
             <div>
               <p className="text-white font-siliguri font-bold text-xl lg:text-3xl">
-                মহানবীর শিক্ষা
+                মহানবীর শিক্ষা-২০২৫
               </p>
             </div>
           </Link>
