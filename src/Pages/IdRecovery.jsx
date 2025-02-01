@@ -1,6 +1,7 @@
 import { Label, TextInput } from "flowbite-react";
 import React, { useState } from "react";
 import useAxiosPublic from "../Hooks/useAxiosPublic";
+import { Helmet } from "react-helmet";
 
 const IdRecovery = () => {
   const axiosPublic = useAxiosPublic();
@@ -43,7 +44,13 @@ const IdRecovery = () => {
   };
 
   return (
+    <>
+    <Helmet>
+      <title>আইডি রিকভারি</title>
+      <meta name="description" content="তোমার আইডি ভূলে গেছ । এখন ই রিকভারি তোমার আইডি" />
+    </Helmet>
     <div className="w-11/12 mx-auto rounded-b-3xl bg-white  mb-12  pb-6 pt-16 md:py-0">
+      
       <div className="bg-[url('/image.png')] bg-cover bg-center bg-no-repeat ">
         <div className="py-20 md:py-36 lg:py-52 flex items-center justify-center"></div>
       </div>
@@ -118,6 +125,7 @@ const IdRecovery = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

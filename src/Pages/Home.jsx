@@ -9,6 +9,7 @@ const Home = () => {
         
             <Helmet>
                 <title>হোম | মহানবীর শিক্ষা</title>
+                <meta name="description" content="মহানবীর শিক্ষা - ২০২৫ ইং" />
             </Helmet>
             <HomeHero></HomeHero>
         </div>

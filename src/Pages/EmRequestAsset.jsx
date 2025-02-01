@@ -1,52 +1,66 @@
 import { useQuery } from "@tanstack/react-query";
-import { TextInput, Select, Label, Button } from "flowbite-react";
+import { TextInput, Select, Label, Button, Spinner,Pagination } from "flowbite-react";
 import { IoSearch } from "react-icons/io5";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { Helmet } from "react-helmet";
 import useAxiosPublic from "../Hooks/useAxiosPublic";
 import { FaEye } from "react-icons/fa6";
 import { TbCoinTakaFilled } from "react-icons/tb";
 const EmRequestAsset = () => {
- 
   const axiosPublic = useAxiosPublic();
   const [search, setSearch] = useState("");
-  const [selectedAssetType, setSelectedAssetType] = useState("");
-  const [availability, setAvailability] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [event, setEvent] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  
-  
-  const handleAssetTypeChange = (e) => {
+  const filterPaymentStatus = (e) => {
     const value = e.target.value;
     if (value !== "") {
-      setSelectedAssetType(value);
+      setPaymentStatus(value);
     }
   };
-  const handleAvailabilityChange = (e) => {
+  const handleEvent = (e) => {
     const value = e.target.value;
     if (value !== "") {
-      setAvailability(e.target.value);
+      setEvent(e.target.value);
     }
   };
-
-  const { data: users = [], refetch } = useQuery({
-    queryKey: ["users", search, selectedAssetType, availability],
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  const {
+    data: users = { data: [], totalItems: 0, totalPages: 1 },
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: ["users", search, paymentStatus, event, currentPage],
     queryFn: async () => {
       const queryParams = {};
       if (search.trim() !== "") {
-        queryParams.productName = search;
+        queryParams.fullName = search;
       }
-      if (selectedAssetType !== "default") {
-        queryParams.productType = selectedAssetType;
+      if (paymentStatus !== "default") {
+        queryParams.paymentStatus = paymentStatus;
       }
-      if (availability !== "default") {
-        queryParams.availability = availability;
+      if (event !== "default") {
+        queryParams.event = event;
       }
-      const response = await axiosPublic.post("find-users", queryParams);
+      const response = await axiosPublic.post(
+        `find-users?page=${currentPage}&limit=10`,
+        queryParams
+      );
       return response.data;
     },
   });
-
+  useEffect(() => { 
+    if (users && users.totalPages !== undefined) {
+        setTotalPages(users.totalPages);
+    }
+}, [users]);
+  console.log(users.data);
+  const allData = users?.data || [];
   const handlePaymentStatus = async (e, id) => {
     e.preventDefault();
     const form = new FormData(e.target);
@@ -71,7 +85,7 @@ const EmRequestAsset = () => {
       });
     }
   };
-  
+
   return (
     <>
       <Helmet>
@@ -92,7 +106,7 @@ const EmRequestAsset = () => {
                   e.preventDefault();
                   setSearch(e.target.value);
                 }}
-                placeholder="Search Item by Name"
+                placeholder="নাম দিয়ে সার্চ করুন"
                 shadow
                 className="focus:ring-0 w-full "
               />
@@ -102,23 +116,21 @@ const EmRequestAsset = () => {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
               <div className="shadow-md rounded-xl">
-                <Select
-                  value={availability}
-                  onChange={handleAvailabilityChange}
-                >
-                  <option value="default">Filter Items by Availability </option>
-                  <option value="Available">Available</option>
-                  <option value="Out-of-stock">Out-of-stock</option>
+                <Select value={event} onChange={handleEvent}>
+                  <option value="default">ইভেন্ট দিয়ে সার্চ করুন</option>
+                  <option value="কুরআন তিলাওয়াত">কুরআন তিলাওয়াত</option>
+                  <option value="নাত/হামদ/গজল">নাত/হামদ/গজল</option>
+                  <option value="দোয়া দরুদ">দোয়া দরুদ</option>
+                  <option value="ইসলামিক গল্প/কবিতা">ইসলামিক গল্প/কবিতা</option>
                 </Select>
               </div>
               <div className="shadow-md rounded-xl">
-                <Select
-                  value={selectedAssetType}
-                  onChange={handleAssetTypeChange}
-                >
-                  <option value="default">Filter By Asset Type</option>
-                  <option value="Returnable">Returnable</option>
-                  <option value="Non-Returnable">Non-Returnable</option>
+                <Select value={paymentStatus} onChange={filterPaymentStatus}>
+                  <option value="default">
+                    পেমেন্ট স্টাটাস দিয়ে সার্চ করুন
+                  </option>
+                  <option value="Paid">Paid</option>
+                  <option value="Pending">Pending</option>
                 </Select>
               </div>
             </div>
@@ -131,113 +143,96 @@ const EmRequestAsset = () => {
                 <div className="overflow-hidden">
                   <table className="min-w-full ">
                     <thead className="  text-white">
+                      <tr>
+                        <th colSpan="9" className="text-black text-start px-4 py-4">
+                        সর্বমোট আবেদনকারী <span>{users.totalItems}</span> জন
+                        </th>
+                      </tr>
                       <tr className="bg-nav  rounded-l-3xl ">
                         <th
                           scope="col"
-                          className="px-6 py-3 text-start text-base font-medium "
+                          className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-3 text-start text-base font-medium "
                         >
                           ক্র.
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-start text-base font-medium "
+                          className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-3 text-center text-base font-medium "
+                        >
+                          একশন
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-3 text-start text-base font-medium "
                         >
                           নাম
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-start text-base font-medium "
+                          className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-3 text-center text-base font-medium "
+                        >
+                          ইভেন্ট
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-3 text-start text-base font-medium "
                         >
                           প্রতিষ্ঠানের নাম
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-start text-base font-medium "
+                          className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-3 text-start text-base font-medium "
                         >
                           হোয়াটসএ্যাপ
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-start text-base font-medium "
+                          className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-3 text-start text-base font-medium "
                         >
                           মোবাইল
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-start text-base font-medium "
+                          className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-3 text-start text-base font-medium "
                         >
                           বয়স
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-start text-base font-medium "
+                          className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-3 text-start text-base font-medium "
                         >
                           ক্লাস
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-center text-base font-medium "
-                        >
-                          ইভেন্ট
-                        </th>
-
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-center text-base font-medium "
-                        >
-                          Action
                         </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 ">
-                      {users.length === 0 ? (
+                      {isLoading ? (
+                        <tr>
+                          <td colSpan="9" className="text-center py-6">
+                            <Spinner
+                              aria-label="Extra large spinner example"
+                              size="xl"
+                            />
+                          </td>
+                        </tr>
+                      ) : allData.length === 0 ? (
                         <tr>
                           <td
                             colSpan="9"
-                            className="text-center text-sm text-black py-2"
+                            className="text-start lg:text-center text-sm text-black py-2 px-4"
                           >
                             No data found
                           </td>
                         </tr>
                       ) : (
-                        users.map((asset, index) => {
-                          const outStock =
-                            asset.availability === "Out of Stock"
-                              ? true
-                              : false;
+                        allData.map((asset, index) => {
+                          
                           return (
                             <tr key={asset._id} className="">
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black dark:text-neutral-200">
-                                {index + 1}
+                              <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-sm font-medium text-black ">
+                              {(currentPage - 1) * 10 + index + 1}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black dark:text-neutral-200">
-                                {asset.fullName}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-black dark:text-neutral-200">
-                                {asset.school}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-black ">
-                                {asset.whatsapp}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-black ">
-                                {asset.mobile}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-black ">
-                                {asset.age}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-black ">
-                                {asset.class}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-black  flex flex-col justify-center items-center">
-                                {asset.events.map((event, index) => (
-                                  <div key={index} className="">
-                                    <p className="bg-nav text-white px-2 py-1 m-2 rounded-md inline-block">
-                                      {event}
-                                    </p>
-                                  </div>
-                                ))}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                              <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-end text-sm font-medium">
                                 <div className="flex justify-center items-center gap-2">
                                   <button
                                     className=""
@@ -247,7 +242,7 @@ const EmRequestAsset = () => {
                                         .showModal()
                                     }
                                   >
-                                    <FaEye className="text-2xl text-nav" />
+                                    <FaEye className="text-xl lg:text-2xl text-nav" />
                                   </button>
                                   <button
                                     className=""
@@ -258,7 +253,7 @@ const EmRequestAsset = () => {
                                     }
                                   >
                                     <TbCoinTakaFilled
-                                      className={` text-3xl ${
+                                      className={`text-xl lg:text-3xl ${
                                         asset?.payment === "Paid"
                                           ? "text-green-600"
                                           : "text-yellow-400"
@@ -267,20 +262,54 @@ const EmRequestAsset = () => {
                                   </button>
                                 </div>
                               </td>
+                              <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-xs lg:text-sm font-medium text-black ">
+                                {asset.fullName}
+                              </td>
+                              <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-xs lg:text-sm text-black  flex flex-col justify-center items-center">
+                                {asset.events.map((event, index) => (
+                                  <div key={index} className="">
+                                    <p className="bg-nav text-white px-2 py-1 m-2 rounded-md inline-block">
+                                      {event}
+                                    </p>
+                                  </div>
+                                ))}
+                              </td>
+                              <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-xs lg:text-sm text-black ">
+                                {asset.school}
+                              </td>
+                              <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-xs lg:text-sm text-black ">
+                                {asset.whatsapp}
+                              </td>
+                              <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-xs lg:text-sm text-black ">
+                                {asset.mobile}
+                              </td>
+                              <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-xs lg:text-sm text-black ">
+                                {asset.age}
+                              </td>
+                              <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-xs lg:text-sm text-black ">
+                                {asset.class}
+                              </td>
                             </tr>
                           );
                         })
                       )}
                     </tbody>
                   </table>
+                  <div className="flex justify-start lg:justify-end items-center px-4 mb-4">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {users.map((asset) => (
+        {allData.map((asset) => (
           <dialog id={asset._id} key={asset._id} className="modal">
-            <div className="modal-box">
+            <div className="modal-box bg-white">
               <h3 className="font-bold text-lg text-center pb-6 text-black">
                 বিস্তারিত তথ্য
               </h3>
@@ -361,6 +390,7 @@ const EmRequestAsset = () => {
                     </td>
                   </tr>
                 </tbody>
+                
               </table>
               <div className="flex justify-center items-center gap-2">
                 <button
@@ -374,13 +404,13 @@ const EmRequestAsset = () => {
             </div>
           </dialog>
         ))}
-        {users.map((asset) => (
+        {allData.map((asset) => (
           <dialog
             id={`payment_${asset._id}`}
             key={`payment_${asset._id}`}
             className="modal"
           >
-            <div className="modal-box">
+            <div className="modal-box bg-white">
               <h3 className="font-bold text-lg text-center pb-6 text-black">
                 পেমেন্ট স্টাটাস আপডেট করুন
               </h3>

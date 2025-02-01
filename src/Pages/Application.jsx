@@ -188,6 +188,7 @@ const Application = () => {
     <>
       <Helmet>
         <title>আবেদন ফরম</title>
+        <meta name="description" content="মহানবীর শিক্ষা- ২০২৫ ইং এর অডিশনের জন্য রেজিস্ট্রেশন চলছে । আজই রেজিস্ট্রেশন করে এবং অংশগ্রহন করুন মহানবীর শিক্ষা -২০২৫ ইং এর অডিশনে।" />
       </Helmet>
       <div className="pb-12 pt-32 px-4 xl:px-0 ">
         <div className="flex flex-col justify-center items-center ">
@@ -417,7 +418,7 @@ const Application = () => {
               )}
               <div className="divider divider-neutral"></div>
               <div className="flex flex-col gap-1">
-                <p className=" text-red-600 text-sm">
+                <p className=" text-blue-600 text-sm font-semibold">
                   আপনার রেজিস্ট্রেশন ফি : {totalFeeInBengali} টাকা
                 </p>
                 <p className=" text-nav font-extrabold text-sm">
