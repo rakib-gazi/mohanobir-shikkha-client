@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { TextInput, Select, Label, Button, Spinner,Pagination } from "flowbite-react";
-import { IoSearch } from "react-icons/io5";
+import { TextInput, Select, Spinner,Pagination } from "flowbite-react";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { Helmet } from "react-helmet";
@@ -10,6 +9,8 @@ import { TbCoinTakaFilled } from "react-icons/tb";
 const EmRequestAsset = () => {
   const axiosPublic = useAxiosPublic();
   const [search, setSearch] = useState("");
+  const [SBkash, setSBkash] = useState("");
+  const [bkashTransctionID, setBkashTransctionID] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [event, setEvent] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,16 +31,23 @@ const EmRequestAsset = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+  console.log(bkashTransctionID);
   const {
     data: users = { data: [], totalItems: 0, totalPages: 1 },
     refetch,
     isLoading,
   } = useQuery({
-    queryKey: ["users", search, paymentStatus, event, currentPage],
+    queryKey: ["users", search,SBkash,bkashTransctionID, paymentStatus, event, currentPage],
     queryFn: async () => {
       const queryParams = {};
       if (search.trim() !== "") {
         queryParams.fullName = search;
+      }
+      if (SBkash.trim() !== "") {
+        queryParams.bkash = SBkash;
+      }
+      if (bkashTransctionID.trim() !== "") {
+        queryParams.transactionNumber  = bkashTransctionID;
       }
       if (paymentStatus !== "default") {
         queryParams.paymentStatus = paymentStatus;
@@ -48,7 +56,7 @@ const EmRequestAsset = () => {
         queryParams.event = event;
       }
       const response = await axiosPublic.post(
-        `find-users?page=${currentPage}&limit=10`,
+        `find-users?page=${currentPage}&limit=100`,
         queryParams
       );
       return response.data;
@@ -59,7 +67,6 @@ const EmRequestAsset = () => {
         setTotalPages(users.totalPages);
     }
 }, [users]);
-  console.log(users.data);
   const allData = users?.data || [];
   const handlePaymentStatus = async (e, id) => {
     e.preventDefault();
@@ -110,9 +117,6 @@ const EmRequestAsset = () => {
                 shadow
                 className="focus:ring-0 w-full "
               />
-              <button>
-                <IoSearch className="w-24 text-2xl text-white rounded" />
-              </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
               <div className="shadow-md rounded-xl">
@@ -132,6 +136,36 @@ const EmRequestAsset = () => {
                   <option value="Paid">Paid</option>
                   <option value="Pending">Pending</option>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
+              <div className="shadow-md rounded-xl">
+              <TextInput
+                id="SBkash"
+                type="text"
+                value={SBkash}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setSBkash(e.target.value);
+                }}
+                placeholder="বিকাশ নাম্বার দিয়ে সার্চ করুন"
+                shadow
+                className="focus:ring-0 w-full "
+              />
+              </div>
+              <div className="shadow-md rounded-xl">
+              <TextInput
+                id="bkashTransctionID"
+                type="text"
+                value={bkashTransctionID}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setBkashTransctionID(e.target.value);
+                }}
+                placeholder="বিকাশ ট্রানজেকশন আইডি দিয়ে সার্চ করুন"
+                shadow
+                className="focus:ring-0 w-full "
+              />
               </div>
             </div>
           </div>
@@ -230,7 +264,7 @@ const EmRequestAsset = () => {
                           return (
                             <tr key={asset._id} className="">
                               <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-sm font-medium text-black ">
-                              {(currentPage - 1) * 10 + index + 1}
+                              {(currentPage - 1) * 100 + index + 1}
                               </td>
                               <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-end text-sm font-medium">
                                 <div className="flex justify-center items-center gap-2">

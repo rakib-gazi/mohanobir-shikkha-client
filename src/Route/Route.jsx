@@ -26,7 +26,7 @@ const router = createBrowserRouter([
         element: <Application></Application>,
       },
       {
-        path: "/admin",
+        path: "/adfasdf3542345rtyurtyne6325465sdfgtwerye34623jsgvbsfaerydgfjfg",
         element: <EmRequestAsset></EmRequestAsset>,
       },
       {

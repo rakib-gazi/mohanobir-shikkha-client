@@ -12,7 +12,7 @@ const IdRecovery = () => {
     e.preventDefault();
     let isError = false;
     const form = new FormData(e.target);
-    const mobile = form.get("mobile");
+    const mobile = form.get("mobile").trim();
     setMobileError("");
     const phoneRegex = /^[0-9]{11}$/;
     if (!mobile) {
