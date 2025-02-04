@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { TextInput, Select, Spinner,Pagination } from "flowbite-react";
+import { TextInput, Select, Spinner, Pagination } from "flowbite-react";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { Helmet } from "react-helmet";
 import useAxiosPublic from "../Hooks/useAxiosPublic";
 import { FaEye } from "react-icons/fa6";
 import { TbCoinTakaFilled } from "react-icons/tb";
+import { IoTrashBinOutline } from "react-icons/io5";
 const EmRequestAsset = () => {
   const axiosPublic = useAxiosPublic();
   const [search, setSearch] = useState("");
@@ -31,13 +32,21 @@ const EmRequestAsset = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  console.log(bkashTransctionID);
+
   const {
     data: users = { data: [], totalItems: 0, totalPages: 1 },
     refetch,
     isLoading,
   } = useQuery({
-    queryKey: ["users", search,SBkash,bkashTransctionID, paymentStatus, event, currentPage],
+    queryKey: [
+      "users",
+      search,
+      SBkash,
+      bkashTransctionID,
+      paymentStatus,
+      event,
+      currentPage,
+    ],
     queryFn: async () => {
       const queryParams = {};
       if (search.trim() !== "") {
@@ -47,7 +56,7 @@ const EmRequestAsset = () => {
         queryParams.bkash = SBkash;
       }
       if (bkashTransctionID.trim() !== "") {
-        queryParams.transactionNumber  = bkashTransctionID;
+        queryParams.transactionNumber = bkashTransctionID;
       }
       if (paymentStatus !== "default") {
         queryParams.paymentStatus = paymentStatus;
@@ -62,11 +71,11 @@ const EmRequestAsset = () => {
       return response.data;
     },
   });
-  useEffect(() => { 
+  useEffect(() => {
     if (users && users.totalPages !== undefined) {
-        setTotalPages(users.totalPages);
+      setTotalPages(users.totalPages);
     }
-}, [users]);
+  }, [users]);
   const allData = users?.data || [];
   const handlePaymentStatus = async (e, id) => {
     e.preventDefault();
@@ -91,6 +100,31 @@ const EmRequestAsset = () => {
         timer: 1500,
       });
     }
+  };
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to undone this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Cancel it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosPublic.delete(`applicant-delete/${id}`).then((res) => {
+          if (res.data.deletedCount > 0) {
+            Swal.fire({
+              title: "Deleted!",
+              text: "Applicant has been Deleted.",
+              icon: "success",
+            });
+            refetch();
+          }
+        });
+      }
+    });
   };
 
   return (
@@ -140,32 +174,32 @@ const EmRequestAsset = () => {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
               <div className="shadow-md rounded-xl">
-              <TextInput
-                id="SBkash"
-                type="text"
-                value={SBkash}
-                onChange={(e) => {
-                  e.preventDefault();
-                  setSBkash(e.target.value);
-                }}
-                placeholder="বিকাশ নাম্বার দিয়ে সার্চ করুন"
-                shadow
-                className="focus:ring-0 w-full "
-              />
+                <TextInput
+                  id="SBkash"
+                  type="text"
+                  value={SBkash}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    setSBkash(e.target.value);
+                  }}
+                  placeholder="বিকাশ নাম্বার দিয়ে সার্চ করুন"
+                  shadow
+                  className="focus:ring-0 w-full "
+                />
               </div>
               <div className="shadow-md rounded-xl">
-              <TextInput
-                id="bkashTransctionID"
-                type="text"
-                value={bkashTransctionID}
-                onChange={(e) => {
-                  e.preventDefault();
-                  setBkashTransctionID(e.target.value);
-                }}
-                placeholder="বিকাশ ট্রানজেকশন আইডি দিয়ে সার্চ করুন"
-                shadow
-                className="focus:ring-0 w-full "
-              />
+                <TextInput
+                  id="bkashTransctionID"
+                  type="text"
+                  value={bkashTransctionID}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    setBkashTransctionID(e.target.value);
+                  }}
+                  placeholder="বিকাশ ট্রানজেকশন আইডি দিয়ে সার্চ করুন"
+                  shadow
+                  className="focus:ring-0 w-full "
+                />
               </div>
             </div>
           </div>
@@ -178,8 +212,11 @@ const EmRequestAsset = () => {
                   <table className="min-w-full ">
                     <thead className="  text-white">
                       <tr>
-                        <th colSpan="9" className="text-black text-start px-4 py-4">
-                        সর্বমোট আবেদনকারী <span>{users.totalItems}</span> জন
+                        <th
+                          colSpan="9"
+                          className="text-black text-start px-4 py-4"
+                        >
+                          সর্বমোট আবেদনকারী <span>{users.totalItems}</span> জন
                         </th>
                       </tr>
                       <tr className="bg-nav  rounded-l-3xl ">
@@ -260,11 +297,10 @@ const EmRequestAsset = () => {
                         </tr>
                       ) : (
                         allData.map((asset, index) => {
-                          
                           return (
                             <tr key={asset._id} className="">
                               <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-sm font-medium text-black ">
-                              {(currentPage - 1) * 100 + index + 1}
+                                {(currentPage - 1) * 100 + index + 1}
                               </td>
                               <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-end text-sm font-medium">
                                 <div className="flex justify-center items-center gap-2">
@@ -292,6 +328,19 @@ const EmRequestAsset = () => {
                                           ? "text-green-600"
                                           : "text-yellow-400"
                                       }`}
+                                    />
+                                  </button>
+                                  <button
+                                    className=""
+                                    onClick={() =>
+                                      document
+                                        .getElementById(`payment_${asset._id}`)
+                                        .showModal()
+                                    }
+                                  >
+                                    <IoTrashBinOutline
+                                      onClick={() => handleDelete(asset._id)}
+                                      className="text-xl lg:text-3xl"
                                     />
                                   </button>
                                 </div>
@@ -330,12 +379,12 @@ const EmRequestAsset = () => {
                     </tbody>
                   </table>
                   <div className="flex justify-start lg:justify-end items-center px-4 mb-4">
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -424,7 +473,6 @@ const EmRequestAsset = () => {
                     </td>
                   </tr>
                 </tbody>
-                
               </table>
               <div className="flex justify-center items-center gap-2">
                 <button
