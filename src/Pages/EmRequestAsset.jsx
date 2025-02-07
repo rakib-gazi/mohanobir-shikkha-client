@@ -6,10 +6,12 @@ import { Helmet } from "react-helmet";
 import useAxiosPublic from "../Hooks/useAxiosPublic";
 import { FaEye } from "react-icons/fa6";
 import { TbCoinTakaFilled } from "react-icons/tb";
-import { IoTrashBinOutline } from "react-icons/io5";
+import { IoTrashBin } from "react-icons/io5";
+import { FiEdit } from "react-icons/fi";
 const EmRequestAsset = () => {
   const axiosPublic = useAxiosPublic();
   const [search, setSearch] = useState("");
+  const [applicantId, setApplicantId] = useState("");
   const [SBkash, setSBkash] = useState("");
   const [bkashTransctionID, setBkashTransctionID] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
@@ -46,11 +48,15 @@ const EmRequestAsset = () => {
       paymentStatus,
       event,
       currentPage,
+      applicantId,
     ],
     queryFn: async () => {
       const queryParams = {};
       if (search.trim() !== "") {
         queryParams.fullName = search;
+      }
+      if (applicantId.trim() !== "") {
+        queryParams.applicantId = applicantId;
       }
       if (SBkash.trim() !== "") {
         queryParams.bkash = SBkash;
@@ -65,7 +71,7 @@ const EmRequestAsset = () => {
         queryParams.event = event;
       }
       const response = await axiosPublic.post(
-        `find-users?page=${currentPage}&limit=100`,
+        `find-users?page=${currentPage}&limit=200`,
         queryParams
       );
       return response.data;
@@ -110,7 +116,7 @@ const EmRequestAsset = () => {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Cancel it!",
+      confirmButtonText: "Yes, Delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
         axiosPublic.delete(`applicant-delete/${id}`).then((res) => {
@@ -138,19 +144,36 @@ const EmRequestAsset = () => {
             <h1 className="text-center text-3xl font-bold text-black py-8">
               সকল আবেদন কারীদের তালিকা
             </h1>
-            <div className="flex items-center bg-nav rounded-xl shadow-md">
-              <TextInput
-                id="fullName"
-                type="text"
-                value={search}
-                onChange={(e) => {
-                  e.preventDefault();
-                  setSearch(e.target.value);
-                }}
-                placeholder="নাম দিয়ে সার্চ করুন"
-                shadow
-                className="focus:ring-0 w-full "
-              />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
+              <div className="flex items-center bg-nav rounded-xl shadow-md">
+                <TextInput
+                  id="fullName"
+                  type="text"
+                  value={search}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    setSearch(e.target.value);
+                  }}
+                  placeholder="নাম দিয়ে সার্চ করুন"
+                  shadow
+                  className="focus:ring-0 w-full "
+                />
+              </div>
+              <div className="flex items-center bg-nav rounded-xl shadow-md">
+                <TextInput
+                  id="applicantId"
+                  type="text"
+                  value={applicantId}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    setApplicantId(e.target.value);
+                  }}
+                  placeholder="আইডি দিয়ে সার্চ করুন"
+                  shadow
+                  className="focus:ring-0 w-full "
+                />
+              </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
               <div className="shadow-md rounded-xl">
@@ -300,7 +323,7 @@ const EmRequestAsset = () => {
                           return (
                             <tr key={asset._id} className="">
                               <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-sm font-medium text-black ">
-                                {(currentPage - 1) * 100 + index + 1}
+                                {(currentPage - 1) * 200 + index + 1}
                               </td>
                               <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-end text-sm font-medium">
                                 <div className="flex justify-center items-center gap-2">
@@ -330,17 +353,20 @@ const EmRequestAsset = () => {
                                       }`}
                                     />
                                   </button>
-                                  <button
-                                    className=""
-                                    onClick={() =>
-                                      document
-                                        .getElementById(`payment_${asset._id}`)
-                                        .showModal()
-                                    }
-                                  >
-                                    <IoTrashBinOutline
+                                  <button className="text-red-600">
+                                    <IoTrashBin
                                       onClick={() => handleDelete(asset._id)}
-                                      className="text-xl lg:text-3xl"
+                                      className="text-base lg:text-xl"
+                                    />
+                                  </button>
+                                  <button className="text-red-600">
+                                    <FiEdit
+                                      onClick={() =>
+                                        document
+                                          .getElementById(`mark${asset._id}`)
+                                          .showModal()
+                                      }
+                                      className="text-base lg:text-xl"
                                     />
                                   </button>
                                 </div>
@@ -515,6 +541,51 @@ const EmRequestAsset = () => {
                     className="bg-red-600 text-white px-4 py-2 rounded-md"
                     onClick={() =>
                       document.getElementById(`payment_${asset._id}`).close()
+                    }
+                  >
+                    বাতিল
+                  </button>
+                </div>
+              </form>
+            </div>
+          </dialog>
+        ))}
+        {allData.map((asset) => (
+          <dialog
+            id={`mark${asset._id}`}
+            key={`mark${asset._id}`}
+            className="modal"
+          >
+            <div className="modal-box bg-white">
+              <h3 className="font-bold text-lg text-center pb-6 text-black">
+                নাম্বার দিন
+              </h3>
+              {asset.events.map((event, index) => (
+                <div key={index} className="">
+                  <p className="bg-nav text-white px-2 py-1 m-2 rounded-md inline-block">
+                    {event}
+                  </p>
+                </div>
+              ))}
+              <form onSubmit={(e) => handlePaymentStatus(e, asset._id)}>
+                <div className="mb-2">
+                  <Select
+                    id="payment"
+                    name="payment"
+                    defaultValue={asset?.payment}
+                  >
+                    <option value={`Pending`}>Pending</option>
+                    <option value={`Paid`}>Paid</option>
+                  </Select>
+                </div>
+                <div className="flex justify-between items-center gap-2">
+                  <button className="bg-nav text-white px-4 py-2 rounded-md">
+                    আপডেট
+                  </button>
+                  <button
+                    className="bg-red-600 text-white px-4 py-2 rounded-md"
+                    onClick={() =>
+                      document.getElementById(`mark${asset._id}`).close()
                     }
                   >
                     বাতিল
