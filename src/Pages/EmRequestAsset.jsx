@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { TextInput, Select, Spinner, Pagination } from "flowbite-react";
+import { TextInput, Select, Spinner, Pagination, Label } from "flowbite-react";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { Helmet } from "react-helmet";
@@ -102,6 +102,34 @@ const EmRequestAsset = () => {
         position: "center",
         icon: "success",
         title: "Payment Status Updated",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
+  const handleAddMark = async (e, id) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const quran = form.get("কুরআন তিলাওয়াত_mark");
+    const naat = form.get("নাত/হামদ/গজল_mark");
+    const dua = form.get("দোয়া দরুদ_mark");
+    const story = form.get("ইসলামিক গল্প/কবিতা_mark");
+    const eventMark = [
+      quran ? { name: "কুরআন তিলাওয়াত", mark: quran } : null,
+      naat ? { name: "নাত/হামদ/গজল", mark: naat } : null,
+      dua ? { name: "দোয়া দরুদ", mark: dua } : null,
+      story ? { name: "ইসলামিক গল্প/কবিতা", mark: story } : null,
+    ].filter(Boolean);
+    const newEventMark = { id, eventMark };
+    const response = await axiosPublic.patch("mark-users", newEventMark);
+
+    if (response.data.modifiedCount > 0) {
+      refetch();
+      document.getElementById(`mark${id}`).close();
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Number Updated",
         showConfirmButton: false,
         timer: 1500,
       });
@@ -375,13 +403,30 @@ const EmRequestAsset = () => {
                                 {asset.fullName}
                               </td>
                               <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-xs lg:text-sm text-black  flex flex-col justify-center items-center">
-                                {asset.events.map((event, index) => (
-                                  <div key={index} className="">
-                                    <p className="bg-nav text-white px-2 py-1 m-2 rounded-md inline-block">
-                                      {event}
-                                    </p>
-                                  </div>
-                                ))}
+                                {asset?.eventMark && asset.eventMark.length > 0
+                                  ? asset?.eventMark?.map((data, index) => (
+                                      <div key={index} className="">
+                                        <p className=" text-white   m-2  inline-block">
+                                          <span className="bg-nav py-1 px-2 rounded-md">
+                                            {data.name}
+                                          </span>
+                                          {data?.mark ? (
+                                            <span className="bg-yellow-300 text-black py-1 px-2 ms-2 rounded-md">
+                                              {data.mark}
+                                            </span>
+                                          ) : (
+                                            ""
+                                          )}
+                                        </p>
+                                      </div>
+                                    ))
+                                  : asset.events.map((event, index) => (
+                                      <div key={index} className="">
+                                        <p className="bg-nav text-white px-2 py-1 m-2 rounded-md inline-block">
+                                          {event}
+                                        </p>
+                                      </div>
+                                    ))}
                               </td>
                               <td className="px-2 lg:px-3 xl:px-4 2xl:px-6 py-1 lg:py-2 xl:py-3 2xl:py-4 whitespace-nowrap text-xs lg:text-sm text-black ">
                                 {asset.school}
@@ -538,6 +583,7 @@ const EmRequestAsset = () => {
                     আপডেট
                   </button>
                   <button
+                    type="button"
                     className="bg-red-600 text-white px-4 py-2 rounded-md"
                     onClick={() =>
                       document.getElementById(`payment_${asset._id}`).close()
@@ -560,29 +606,43 @@ const EmRequestAsset = () => {
               <h3 className="font-bold text-lg text-center pb-6 text-black">
                 নাম্বার দিন
               </h3>
-              {asset.events.map((event, index) => (
-                <div key={index} className="">
-                  <p className="bg-nav text-white px-2 py-1 m-2 rounded-md inline-block">
-                    {event}
-                  </p>
-                </div>
-              ))}
-              <form onSubmit={(e) => handlePaymentStatus(e, asset._id)}>
-                <div className="mb-2">
-                  <Select
-                    id="payment"
-                    name="payment"
-                    defaultValue={asset?.payment}
-                  >
-                    <option value={`Pending`}>Pending</option>
-                    <option value={`Paid`}>Paid</option>
-                  </Select>
-                </div>
-                <div className="flex justify-between items-center gap-2">
+
+              <form onSubmit={(e) => handleAddMark(e, asset._id)}>
+                {asset.events.map((event, index) => {
+                  // Find the corresponding mark from asset?.eventMark
+                  const eventMark =
+                    asset?.eventMark?.length > 0
+                      ? asset.eventMark.find((item) => item.name === event)
+                          ?.mark || "N/A"
+                      : "N/A";
+
+                  return (
+                    <div key={index}>
+                      <div className="mb-2 block">
+                        <Label
+                          htmlFor={event}
+                          value={event}
+                          className="text-xl font-siliguri font-semibold"
+                        />
+                      </div>
+                      <TextInput
+                        id={event}
+                        type="text"
+                        name={`${event}_mark`}
+                        placeholder={event}
+                        defaultValue={eventMark} // Set default value here
+                        shadow
+                      />
+                    </div>
+                  );
+                })}
+
+                <div className="flex justify-between items-center gap-2 mt-2">
                   <button className="bg-nav text-white px-4 py-2 rounded-md">
                     আপডেট
                   </button>
                   <button
+                    type="button"
                     className="bg-red-600 text-white px-4 py-2 rounded-md"
                     onClick={() =>
                       document.getElementById(`mark${asset._id}`).close()
